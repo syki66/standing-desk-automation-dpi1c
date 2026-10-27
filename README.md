@@ -1,144 +1,148 @@
 # standing-desk-automation
 
-맥에서 블루투스로 LINAK DPI1C 패널을 제어하는 비공식 파이썬 스크립트입니다.
-터미널 명령이나 시리 단축어로 책상 높이를 바꿀 수 있습니다.
+**English** | [한국어](README.ko.md)
 
-## 기준 책상
+An unofficial Python script that controls a LINAK DPI1C panel from a Mac over Bluetooth.
+You can change the desk height with terminal commands or Siri Shortcuts.
 
-- 컨트롤러: LINAK DPI1C
-- 컨트롤 박스: LINAK CBD6S
-- 기둥(모터): LINAK DL6
-- 이름: `DESK 0000`
-- 범위: 60 ~ 125cm
+## Reference desk
 
-## 파일 위치
+- Controller: LINAK DPI1C
+- Control box: LINAK CBD6S
+- Columns (motors): LINAK DL6
+- Name: `DESK 0000`
+- Range: 60–125 cm
 
-| 무엇 | 위치 |
+## File locations
+
+| What | Location |
 | --- | --- |
-| 스크립트 (실행용) | `~/linak/desk.py` |
-| 스크립트 사본 (연결 성공 확인된 버전) | 이 폴더의 `desk.py` |
-| 파이썬 가상환경 (bleak 설치됨) | `~/linak/.venv` |
-| 설정 (책상 주소, 서버 키) | `~/.config/linak-dpi1c/config.json` |
+| Script (the one you run) | `~/linak/desk.py` |
+| Script copy (version confirmed to connect) | `desk.py` in this repo |
+| Python virtual environment (with bleak installed) | `~/linak/.venv` |
+| Settings (desk address, server key) | `~/.config/linak-dpi1c/config.json` |
 
-## 요구 사항
+## Requirements
 
 - macOS
-- Python 3.9 이상
-- 기본 터미널 앱 (다른 앱 안의 터미널은 블루투스 권한 문제로 튕길 수 있습니다)
+- Python 3.9 or later
+- The built-in Terminal app (terminals inside other apps may crash because of Bluetooth permission issues)
 
-## 설치
+## Installation
 
 ```
 mkdir -p ~/linak && mv ~/Downloads/desk.py ~/linak/
 python3 -m venv ~/linak/.venv && ~/linak/.venv/bin/pip install bleak
 ```
 
-`bleak`은 파이썬에서 블루투스 저전력(BLE) 기기와 통신하는 라이브러리입니다.
+`bleak` is a Python library for talking to Bluetooth Low Energy (BLE) devices.
 
-`desk` 명령으로 계속 쓰려면 `~/.zshrc`에 이 줄을 추가합니다.
+To keep using the `desk` command, add this line to `~/.zshrc`.
 
 ```
 alias desk="~/linak/.venv/bin/python ~/linak/desk.py"
 ```
 
-## 초기 설정
+## Initial setup
 
-1. 책상에 연결되어 있는 블루투스 연결을 해제합니다.
-2. 패널 뒤/밑 버튼을 2~3초 누르면 화면에 `DESK 0000`처럼 책상 ID가 뜹니다. 숫자는 책상마다 다릅니다.
-3. 떠 있는 동안 `desk scan`, 그다음 `desk status`를 실행합니다.
-4. 블루투스 권한이나 페어링 팝업이 뜨면 허용합니다.
+1. Disconnect any device currently connected to the desk over Bluetooth.
+2. Hold the button on the back or underside of the panel for 2–3 seconds. The desk ID, such as `DESK 0000`, appears on the display. The number is different for each desk.
+3. While the ID is shown, run `desk scan`, then `desk status`.
+4. If a Bluetooth permission or pairing pop-up appears, allow it.
 
-## 명령어
+## Commands
 
-| 명령 | 동작 |
+| Command | Action |
 | --- | --- |
-| `desk status` | 현재 높이와 프리셋 보기 |
-| `desk to 100` | 100cm로 이동 |
-| `desk preset 1` | 프리셋 1~4로 이동 |
-| `desk stop` | 정지 |
-| `desk scan` | 책상 다시 찾기 |
-| `desk serve` | 시리/단축어용 서버 실행 |
+| `desk status` | Show the current height and presets |
+| `desk to 100` | Move to 100 cm |
+| `desk preset 1` | Move to preset 1–4 |
+| `desk stop` | Stop |
+| `desk scan` | Find the desk again |
+| `desk serve` | Run the server for Siri/Shortcuts |
 
-움직이는 중에 Ctrl+C를 누르면 바로 멈춥니다.
+Press Ctrl+C while the desk is moving to stop it immediately.
 
-## 시리 연결
+The script's messages are in Korean.
 
-1. `desk serve`를 실행합니다. 터미널 창을 열어두어야 하며, 맥이 잠자기 상태가 되면 안 됩니다.
-2. 출력된 주소를 복사합니다. 예: `http://192.168.x.x:8765/preset/2?key=xxxxxxxx`
-3. 단축어 앱에서 새 단축어를 만들고 "URL 내용 가져오기"에 주소를 붙여넣습니다.
-4. 이름을 "책상 올려"처럼 지으면 "시리야, 책상 올려"로 실행됩니다.
+## Siri setup
 
-- 아이폰도 같은 와이파이면 같은 주소를 쓸 수 있습니다.
-- 주소 끝의 `key`는 같은 와이파이의 다른 사람이 책상을 못 움직이게 하는 용도입니다.
-- 쓸 수 있는 주소: `status`, `to/<cm>`, `preset/<1-4>`, `stop`
+1. Run `desk serve`. Keep the Terminal window open and don't let the Mac go to sleep.
+2. Copy one of the printed URLs. Example: `http://192.168.x.x:8765/preset/2?key=xxxxxxxx`
+3. In the Shortcuts app, create a new shortcut and paste the URL into a "Get Contents of URL" action.
+4. Name it something like "Raise desk", and "Hey Siri, raise desk" will run it.
 
-## 업데이트 / 제거
+- An iPhone on the same Wi-Fi can use the same URL.
+- The `key` at the end of the URL stops other people on the same Wi-Fi from moving your desk.
+- Available paths: `status`, `to/<cm>`, `preset/<1-4>`, `stop`
 
-### 업데이트
+## Update / uninstall
 
-새 `desk.py`를 받은 뒤 기존 파일을 덮어씁니다. 설정과 가상환경은 그대로 유지됩니다.
+### Update
+
+Download the new `desk.py` and overwrite the old one. Your settings and virtual environment are kept.
 
 ```
 mv -f ~/Downloads/desk.py ~/linak/
 ```
 
-### 제거
+### Uninstall
 
 ```
 rm -rf ~/linak ~/.config/linak-dpi1c
 ```
 
-- `~/.zshrc`에 추가한 `alias desk=...` 줄을 지웁니다.
-- 시스템 설정 > Bluetooth 목록에 책상이 있으면 ⓘ를 눌러 "이 기기 지우기"를 합니다.
-- 만들어둔 시리 단축어를 지웁니다.
+- Remove the `alias desk=...` line you added to `~/.zshrc`.
+- If the desk is listed in System Settings > Bluetooth, click ⓘ and choose "Forget This Device".
+- Delete any Siri shortcuts you made.
 
-## 동작 방식
+## How it works
 
-- 목표 높이를 절대 위치로 보냅니다. 차이만큼 가는 방식이 아니며, 컨트롤러가 현재 위치와 비교해 방향을 정합니다.
-- 목표 높이를 50ms마다 반복해서 보냅니다. 간격이 길어지면 움직임이 끊깁니다.
-- 높이 데이터는 0.01cm 단위, 입력은 0.1cm 단위입니다. 실제로는 목표의 ±0.5cm 안에서 멈춥니다.
-- 다음 경우에 이동이 끝납니다.
-  - 도착: 정지 명령을 보냅니다.
-  - 패널을 반대 방향으로 조작: 목표 높이 전송을 멈추고 패널 조작에 맡깁니다.
-  - 45초 초과, 또는 3초 동안 안 움직임: 정지(`FF 00`) 후 하트비트(`01 80`)를 보냅니다.
-- `desk serve` 중 움직이는 도중에 새 명령이 오면, 정지 후 2초 기다렸다가 새 목표로 움직입니다.
+- The target height is sent as an absolute position, not as a distance to move. The controller compares it with the current position and picks the direction.
+- The target height is sent repeatedly every 50 ms. Longer intervals make the movement stutter.
+- Height data is in 0.01 cm units and input is in 0.1 cm units. In practice the desk stops within ±0.5 cm of the target.
+- A move ends when:
+  - The desk arrives: a stop command is sent.
+  - The panel is pressed in the opposite direction: the script stops sending the target height and leaves control to the panel.
+  - It takes more than 45 seconds, or the desk doesn't move for 3 seconds: a stop (`FF 00`) is sent, followed by a heartbeat (`01 80`).
+- If a new command arrives during `desk serve` while the desk is moving, the desk stops, waits 2 seconds, then moves to the new target.
 
-## 한계
+## Limitations
 
-- 최고 높이는 책상에서 읽지 않고 `최저 높이 + 65cm`로 고정합니다. 이동 폭이 다른 책상은 범위가 틀릴 수 있습니다.
-- 0.5cm보다 작은 이동은 하지 않습니다.
-- 책상 이름이 `DESK`로 시작하거나, 책상이 주변에 보내는 신호(BLE advertise)에 DPI1C 서비스 UUID 또는 LINAK 제조사 ID가 있어야 찾습니다. 앱에서 책상 이름을 바꾸면 못 찾을 수 있습니다.
-- 현재는 DPI1C 패널만 지원합니다. DPG1C 지원은 추가 예정입니다.
+- The maximum height isn't read from the desk. It is fixed at `minimum height + 65 cm`, so the range may be wrong on desks with a different travel distance.
+- Moves smaller than 0.5 cm are skipped.
+- The desk is found only if its name starts with `DESK`, or if its Bluetooth advertisement (BLE advertise) includes the DPI1C service UUID or the LINAK manufacturer ID. If you rename the desk in the app, it may not be found.
+- Only the DPI1C panel is supported for now. DPG1C support is planned.
 
-## 문제 해결
+## Troubleshooting
 
-- **`desk scan`이 못 찾음**: 패널 버튼을 2~3초 눌러 ID가 떠 있는 동안 다시 실행합니다.
-- **`연결/통신 실패`**: 폰 연결을 끊고 위와 같이 다시 시도합니다. 에러 메시지에 실패한 단계가 표시됩니다.
-- **실행하자마자 튕김**: VS Code 같은 다른 앱 안의 터미널은 블루투스 권한 때문에 튕길 수 있습니다. 기본 터미널 앱에서 실행합니다.
-- **E16 에러**: 스크립트로 제어하는 중에 패널을 손으로 조작하면 발생합니다. 다시 페어링해야 할 수 있습니다.
+- **`desk scan` can't find the desk**: Hold the panel button for 2–3 seconds and run it again while the ID is shown.
+- **`연결/통신 실패` (connection/communication failed)**: Disconnect the desk from your phone and try again as above. The error message shows which step failed.
+- **Crashes right after launch**: Terminals inside other apps, such as VS Code, may crash because of Bluetooth permissions. Run it in the built-in Terminal app.
+- **E16 error**: Happens when you operate the panel by hand while the script is controlling the desk. You may need to pair again.
 
-## 진행 중 / 계획
+## In progress / planned
 
-- **범용 버전**: 현재는 최고 높이를 책상에서 읽어올 수 없습니다. 우선 65cm 고정 대신 책상이 실제로 가본 가장 높은 위치를 기록할 예정입니다.
-- **아이폰 앱**: 맥 없이 아이폰에서 직접 블루투스로 책상을 제어하고, 시리로도 제어 가능한 앱을 만들 예정입니다.
-- **맥 메뉴 막대 앱**: 화면 오른쪽 위 메뉴 막대 아이콘으로 바로 책상을 제어하는 맥 앱을 만들 예정입니다.
-- **`desk serve --no-key`**: 키 없이 서버를 실행하는 옵션입니다.
-- **`desk scan <번호>`**: 이름과 상관없이 근처 기기 목록에서 골라 저장합니다.
-- **DPG1C 지원**: DPI1C와 프로토콜이 달라서 따로 추가할 예정입니다.
+- **Universal version**: The maximum height can't be read from the desk yet. As a first step, instead of the fixed 65 cm, it will record the highest position the desk has actually reached.
+- **iPhone app**: An app that controls the desk directly from an iPhone over Bluetooth, without a Mac, and also works with Siri.
+- **Mac menu bar app**: A Mac app that controls the desk right from a menu bar icon at the top right of the screen.
+- **`desk serve --no-key`**: An option to run the server without a key.
+- **`desk scan <number>`**: Pick a device from a list of nearby devices and save it, whatever its name.
+- **DPG1C support**: Will be added separately because its protocol differs from DPI1C.
 
-## 동작 원리 (참고)
+## Protocol (reference)
 
-BLE 서비스 `99fa0001-338a-1024-8a49-009c0215f78a`의 특성을 사용합니다.
+Uses characteristics of the BLE service `99fa0001-338a-1024-8a49-009c0215f78a`.
 
-| 특성 | 용도 |
+| Characteristic | Purpose |
 | --- | --- |
-| `0002` | 정지 `FF 00` |
-| `0011` | 설정 읽기/쓰기: 이름 `7F 26 00`, 최저 높이 `7F 81 00`, 프리셋 `7F 99 00 <슬롯>` |
-| `0021` | 높이/속도 알림 `[높이 lo, 높이 hi, 속도 lo, 속도 hi]` |
-| `0031` | 목표 높이 `(cm - 최저 높이) × 100`을 50ms마다 반복 전송, 끝나면 하트비트 `01 80` |
+| `0002` | Stop `FF 00` |
+| `0011` | Read/write settings: name `7F 26 00`, minimum height `7F 81 00`, preset `7F 99 00 <slot>` |
+| `0021` | Height/speed notifications `[height lo, height hi, speed lo, speed hi]` |
+| `0031` | Target height `(cm - minimum height) × 100`, sent every 50 ms; heartbeat `01 80` when done |
 
-## 라이선스
+## License
 
 [MIT](LICENSE) © 2026 syki66
 
-DPI1C 블루투스(BLE) 통신 프로토콜은 [kkqq9320/ha-linak-dpi1c-control](https://github.com/kkqq9320/ha-linak-dpi1c-control) (MIT, © 2026 KKQQ)을 참고했습니다.
+The DPI1C Bluetooth (BLE) protocol is based on [kkqq9320/ha-linak-dpi1c-control](https://github.com/kkqq9320/ha-linak-dpi1c-control) (MIT, © 2026 KKQQ).
